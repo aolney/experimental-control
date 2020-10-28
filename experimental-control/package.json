@@ -34,6 +34,7 @@
     "@jupyterlab/application": "^1.0.0",
     "@jupyterlab/notebook": "^1.0.0",
     "chokidar": "^3.4.3",
+    "deep-object-diff": "^1.1.0",
     "jquery": "^3.5.1"
   },
   "devDependencies": {
