@@ -53,8 +53,22 @@ const extension: JupyterFrontEndPlugin<void> = {
   activate: (app: JupyterFrontEnd, notebooks: INotebookTracker) => {
     const urlParams = new URLSearchParams(window.location.search);
     const lockParam = urlParams.get("lock");
+
     if (lockParam === "1") {
       console.log("JupyterLab extension experimental-control is activated!");
+
+      // Remove 'x' icon from tab here since we need app context
+      app.restored.then(() => {
+        let tabCloseIcons = document.getElementsByClassName(
+          "p-TabBar-tabCloseIcon"
+        );
+        while (tabCloseIcons[0]) {
+          (tabCloseIcons[0] as HTMLElement).parentNode.removeChild(
+            tabCloseIcons[0]
+          );
+        }
+      });
+
       notebooks.currentChanged.connect(lockdown, null);
     }
   },
