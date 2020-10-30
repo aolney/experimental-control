@@ -5,8 +5,6 @@ import {
 
 import { INotebookTracker } from "@jupyterlab/notebook";
 
-const BASE_HUB_URL = "localhost:3000";
-
 // Hide UI elements to effect lockdown
 function lockdown() {
   const urlParams = new URLSearchParams(window.location.search);
@@ -19,17 +17,20 @@ function lockdown() {
     .children[0];
   (mainPanelFirstChild as HTMLElement).style.display = "none";
 
-  setTimeout(() => {
-    const user = getUrlUser();
-    const index = urlParams.get("index");
-    const hubLink = BASE_HUB_URL + "/" + user + "/" + index;
+  const timeout = urlParams.get("timeout");
+  if (timeout && Number.parseInt(timeout) > 0) {
+    setTimeout(() => {
+      const user = getUrlUser();
+      const hubLink =
+        urlParams.get("hub") + "/" + user + "/" + urlParams.get("index");
 
-    document.body.innerHTML += `<div style="text-align:center;position:absolute;width:100%;height:100%;opacity:0.7;z-index:100;background:#000;">
+      document.body.innerHTML += `<div style="text-align:center;position:absolute;width:100%;height:100%;opacity:0.7;z-index:100;background:#000;">
       <h1 style="color:orange;opacity:1 !important;">
       <a target="_blank" rel="noopener noreferrer" href="${hubLink}">Click here to get your next assignment</a>
       </h1>
       </div>`;
-  }, Number.parseInt(urlParams.get("timeout")));
+    }, Number.parseInt(timeout));
+  }
 }
 
 function getUrlUser() {
