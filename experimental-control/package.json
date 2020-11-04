@@ -1,18 +1,20 @@
 {
-  "name": "experimental-control",
+  "name": "@memphis-iis/experimental-control",
   "version": "0.1.0",
   "description": "DataWhys JupyterLab experimental control extension",
   "keywords": [
     "jupyter",
     "jupyterlab",
-    "jupyterlab-extension"
+    "jupyterlab-extension",
+    "experiment",
+    "research"
   ],
   "homepage": "https://github.com/memphis-iis/experimental-control",
   "bugs": {
     "url": "https://github.com/memphis-iis/experimental-control/issues"
   },
-  "license": "BSD-3-Clause",
-  "author": "",
+  "license": "Apache-2.0",
+  "author": "Wes Carter,Andrew M. Olney",
   "files": [
     "lib/**/*.{d.ts,eot,gif,html,jpg,js,js.map,json,png,svg,woff2,ttf}",
     "style/**/*.{css,eot,gif,html,jpg,json,png,svg,woff2,ttf}"
