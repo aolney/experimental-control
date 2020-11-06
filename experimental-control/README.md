@@ -1,6 +1,6 @@
 # experimental-control
 
-![Github Actions Status](https://github.com/memphis-iis/experimental-control/workflows/Build/badge.svg)
+![Github Actions Status](https://github.com/aolney/experimental-control/workflows/Build/badge.svg)
 
 DataWhys JupyterLab experimental control extension
 
