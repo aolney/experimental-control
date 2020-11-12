@@ -22,7 +22,13 @@ function lockdown() {
     setTimeout(() => {
       const user = getUrlUser();
       const hubLink =
-        urlParams.get("hub") + "/" + user + "/" + urlParams.get("index");
+        urlParams.get("hub") +
+        "/" +
+        user +
+        "/" +
+        urlParams.get("index") +
+        "/" +
+        urlParams.get("condition");
 
       document.body.innerHTML += `<div style="text-align:center;position:absolute;width:100%;height:100%;opacity:0.7;z-index:100;background:#000;">
       <h1 style="color:orange;opacity:1 !important;">
