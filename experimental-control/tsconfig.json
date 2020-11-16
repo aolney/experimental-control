@@ -18,7 +18,6 @@
     "strict": true,
     "strictNullChecks": false,
     "target": "es2017",
-    "types": ["jquery"]
   },
   "include": ["src/*"]
 }

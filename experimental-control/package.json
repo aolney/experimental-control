@@ -40,7 +40,7 @@
     "jquery": "^3.5.1"
   },
   "devDependencies": {
-    "@types/jquery": "^3.5.3",
+    "@types/jquery": "^3.5.4",
     "rimraf": "^2.6.1",
     "typescript": "~3.5.2"
   },

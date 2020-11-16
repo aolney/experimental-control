@@ -5,6 +5,8 @@ import {
 
 import { INotebookTracker } from "@jupyterlab/notebook";
 
+import $ from "jquery";
+
 // Hide UI elements to effect lockdown
 function lockdown() {
   const urlParams = new URLSearchParams(window.location.search);
@@ -60,20 +62,16 @@ const extension: JupyterFrontEndPlugin<void> = {
   activate: (app: JupyterFrontEnd, notebooks: INotebookTracker) => {
     const urlParams = new URLSearchParams(window.location.search);
     const lockParam = urlParams.get("lock");
-
     if (lockParam === "1") {
       console.log("JupyterLab extension experimental-control is activated!");
-
-      // Remove 'x' icon from tab here since we need app context
+      // Remove 'x' icon from tab and Launcher tab here since we need app context
       app.restored.then(() => {
-        let tabCloseIcons = document.getElementsByClassName(
-          "p-TabBar-tabCloseIcon"
-        );
-        while (tabCloseIcons[0]) {
-          (tabCloseIcons[0] as HTMLElement).parentNode.removeChild(
-            tabCloseIcons[0]
-          );
-        }
+        $(".p-TabBar-tabCloseIcon").remove();
+        $(".p-TabBar-tab").each(function (idx) {
+          if ($(this)[0].innerText.includes("Launcher")) {
+            $(this).remove();
+          }
+        });
       });
 
       notebooks.currentChanged.connect(lockdown, null);
