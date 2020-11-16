@@ -73,7 +73,7 @@ const extension: JupyterFrontEndPlugin<void> = {
               $(this).remove();
             }
           });
-        }, 3000);
+        }, 1000);
       });
 
       notebooks.currentChanged.connect(lockdown, null);
