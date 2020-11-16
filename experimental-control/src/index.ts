@@ -66,12 +66,14 @@ const extension: JupyterFrontEndPlugin<void> = {
       console.log("JupyterLab extension experimental-control is activated!");
       // Remove 'x' icon from tab and Launcher tab here since we need app context
       app.restored.then(() => {
-        $(".p-TabBar-tabCloseIcon").remove();
-        $(".p-TabBar-tab").each(function (idx) {
-          if ($(this)[0].innerText.includes("Launcher")) {
-            $(this).remove();
-          }
-        });
+        setInterval(function () {
+          $(".p-TabBar-tabCloseIcon").remove();
+          $(".p-TabBar-tab").each(function (idx) {
+            if ($(this)[0].innerText.includes("Launcher")) {
+              $(this).remove();
+            }
+          });
+        }, 3000);
       });
 
       notebooks.currentChanged.connect(lockdown, null);
