@@ -67,10 +67,13 @@ const extension: JupyterFrontEndPlugin<void> = {
       // Remove 'x' icon from tab and Launcher tab here since we need app context
       app.restored.then(() => {
         setInterval(function () {
-          $(".p-TabBar-tabCloseIcon").remove();
+          $(".p-TabBar-tabCloseIcon").hide();
           $(".p-TabBar-tab").each(function (idx) {
-            if ($(this)[0].innerText.includes("Launcher")) {
-              $(this).remove();
+            if (
+              $(this)[0].innerText.includes("Launcher") ||
+              $(this)[0].innerText.includes("Console")
+            ) {
+              $(this).hide();
             }
           });
         }, 1000);
