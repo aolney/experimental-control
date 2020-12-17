@@ -1,6 +1,6 @@
 {
   "name": "@aolney/experimental-control",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "DataWhys JupyterLab experimental control extension",
   "keywords": [
     "jupyter",
@@ -35,6 +35,7 @@
   "dependencies": {
     "@jupyterlab/application": "^1.0.0",
     "@jupyterlab/notebook": "^1.0.0",
+    "@phosphor/signaling": "^1.0.0",
     "chokidar": "^3.4.3",
     "deep-object-diff": "^1.1.0",
     "jquery": "^3.5.1"

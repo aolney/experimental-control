@@ -9,7 +9,10 @@ import { INotebookTracker } from "@jupyterlab/notebook";
 import $ from "jquery";
 
 // Hide UI elements to effect lockdown
-function lockdown() {
+function lockdown( this: LabShell, notebookTracker : any, notebookPanel:any) {
+  //try to collapse left navbar again. It seems sometimes a delayed workspace load will pop it out again
+  this.collapseLeft();
+
   const urlParams = new URLSearchParams(window.location.search);
 
   document.getElementById("jp-top-panel").style.display = "none";
@@ -69,6 +72,7 @@ const extension: JupyterFrontEndPlugin<void> = {
       app.restored.then(() => {
         //collapse the file explorer and anything else on the left navbar
         (app.shell as LabShell).collapseLeft();
+        //Wes: why set a timer here; why not wait for currentChanged as below?
         setInterval(function () {
           $(".p-TabBar-tabCloseIcon").hide();
           $(".p-TabBar-tab").each(function (idx) {
@@ -82,7 +86,7 @@ const extension: JupyterFrontEndPlugin<void> = {
         }, 1000);
       });
 
-      notebooks.currentChanged.connect(lockdown, null);
+      notebooks.currentChanged.connect(lockdown, app.shell);
     }
   },
 };
