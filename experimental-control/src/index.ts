@@ -1,6 +1,7 @@
 import {
   JupyterFrontEnd,
   JupyterFrontEndPlugin,
+  LabShell,
 } from "@jupyterlab/application";
 
 import { INotebookTracker } from "@jupyterlab/notebook";
@@ -66,6 +67,8 @@ const extension: JupyterFrontEndPlugin<void> = {
       console.log("JupyterLab extension experimental-control is activated!");
       // Remove 'x' icon from tab and Launcher tab here since we need app context
       app.restored.then(() => {
+        //collapse the file explorer and anything else on the left navbar
+        (app.shell as LabShell).collapseLeft();
         setInterval(function () {
           $(".p-TabBar-tabCloseIcon").hide();
           $(".p-TabBar-tab").each(function (idx) {

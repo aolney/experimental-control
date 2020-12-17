@@ -2,7 +2,20 @@
 
 ![Github Actions Status](https://github.com/aolney/experimental-control/workflows/Build/badge.svg)
 
-DataWhys JupyterLab experimental control extension
+DataWhys JupyterLab experimental control extension. To enable:
+
+- Install the extension (see below)
+- Append `lock=1` to the URL query string
+
+If the query string parameter is not set, the extension will not be active.
+
+The following behaviors are implemented:
+
+- Left navbar collapsed (e.g. file explorer)
+- Left navbar hidden
+- Launcher and terminal tabs hidden
+- Notebook tab close button disabled
+- Bottom status bar hidden
 
 
 ## Requirements
