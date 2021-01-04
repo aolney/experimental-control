@@ -40,7 +40,7 @@ function lockdown(this: LabShell, notebookTracker: any, notebookPanel: any) {
   const timeout = urlParams.get("timeout");
   if (timeout && Number.parseInt(timeout) > 0) {
     setTimeout(() => {
-      document.body.innerHTML += `<div style="text-align:center;position:absolute;width:100%;height:100%;opacity:0.7;z-index:100;background:#000;">
+      document.body.innerHTML += `<div style="text-align:center;position:absolute;width:100%;height:100%;opacity:1;z-index:100;background:#000;">
       <h1 style="color:orange;opacity:1 !important;">
       <a target="_blank" rel="noopener noreferrer" href="${hubLink}">Click here to get your next assignment</a>
       </h1>
