@@ -24,6 +24,8 @@ const hubLink =
   "/" +
   urlParams.get("condition");
 
+const WEHideStrings = ["far", "near2"];
+
 // Hide UI elements to effect lockdown
 function lockdown(this: LabShell, notebookTracker: any, notebookPanel: any) {
   //try to collapse left navbar again. It seems sometimes a delayed workspace load will pop it out again
@@ -108,12 +110,25 @@ const extension: JupyterFrontEndPlugin<void> = {
         //Wes: why set a timer here; why not wait for currentChanged as below?
         setInterval(function () {
           $(".p-TabBar-tabCloseIcon").hide();
+          let workedExampleEligible = true;
           $(".p-TabBar-tab").each(function (idx) {
+            let $currentTabParent = $(this);
+            let $currentTab = $currentTabParent[0];
+            let $innerText = $currentTab.innerText;
+            if ($innerText.includes("near2") || $innerText.includes("far")) {
+              workedExampleEligible = false;
+            }
+          });
+
+          $(".p-TabBar-tab").each(function (idx) {
+            let $currentTabParent = $(this);
+            let $currentTab = $currentTabParent[0];
+            let $innerText = $currentTab.innerText;
             if (
-              $(this)[0].innerText.includes("Launcher") ||
-              $(this)[0].innerText.includes("Console")
+              !($innerText.includes("we-") && $innerText.includes("near1")) ||
+              !workedExampleEligible
             ) {
-              $(this).hide();
+              $currentTabParent.hide();
             }
           });
         }, 1000);
