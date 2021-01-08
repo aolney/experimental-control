@@ -108,12 +108,25 @@ const extension: JupyterFrontEndPlugin<void> = {
         //Wes: why set a timer here; why not wait for currentChanged as below?
         setInterval(function () {
           $(".p-TabBar-tabCloseIcon").hide();
+          let workedExampleEligible = true;
           $(".p-TabBar-tab").each(function (idx) {
+            let $currentTabParent = $(this);
+            let $currentTab = $currentTabParent[0];
+            let $innerText = $currentTab.innerText;
+            if ($innerText.includes("near2") || $innerText.includes("far")) {
+              workedExampleEligible = false;
+            }
+          });
+
+          $(".p-TabBar-tab").each(function (idx) {
+            let $currentTabParent = $(this);
+            let $currentTab = $currentTabParent[0];
+            let $innerText = $currentTab.innerText;
             if (
-              $(this)[0].innerText.includes("Launcher") ||
-              $(this)[0].innerText.includes("Console")
+              !($innerText.includes("we-") || $innerText.includes("near1")) ||
+              !workedExampleEligible
             ) {
-              $(this).hide();
+              $currentTabParent.hide();
             }
           });
         }, 1000);
