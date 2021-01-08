@@ -24,8 +24,6 @@ const hubLink =
   "/" +
   urlParams.get("condition");
 
-const WEHideStrings = ["far", "near2"];
-
 // Hide UI elements to effect lockdown
 function lockdown(this: LabShell, notebookTracker: any, notebookPanel: any) {
   //try to collapse left navbar again. It seems sometimes a delayed workspace load will pop it out again
