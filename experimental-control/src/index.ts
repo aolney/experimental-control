@@ -123,7 +123,7 @@ const extension: JupyterFrontEndPlugin<void> = {
             let $currentTab = $currentTabParent[0];
             let $innerText = $currentTab.innerText;
             if (
-              !($innerText.includes("we-") && $innerText.includes("near1")) ||
+              !($innerText.includes("we-") || $innerText.includes("near1")) ||
               !workedExampleEligible
             ) {
               $currentTabParent.hide();
