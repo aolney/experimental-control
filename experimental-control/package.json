@@ -34,15 +34,16 @@
   },
   "dependencies": {
     "@jupyterlab/application": "^1.0.0",
+    "@jupyterlab/cells": "^1.0.0",
     "@jupyterlab/mainmenu": "^1.0.0",
     "@jupyterlab/notebook": "^1.0.0",
     "@phosphor/signaling": "^1.0.0",
-    "chokidar": "^3.4.3",
+    "chokidar": "^3.5.1",
     "deep-object-diff": "^1.1.0",
     "jquery": "^3.5.1"
   },
   "devDependencies": {
-    "@types/jquery": "^3.5.4",
+    "@types/jquery": "^3.5.5",
     "rimraf": "^2.6.1",
     "typescript": "~3.5.2"
   },
