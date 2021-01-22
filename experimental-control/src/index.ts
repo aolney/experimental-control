@@ -3,16 +3,13 @@ import {
   JupyterFrontEndPlugin,
   LabShell,
 } from "@jupyterlab/application";
-import {
-  INotebookTracker,
-  NotebookPanel,
-  INotebookModel,
-} from "@jupyterlab/notebook";
-import { IDisposable, DisposableDelegate } from "@phosphor/disposable";
-import { ToolbarButton } from "@jupyterlab/apputils";
-import { DocumentRegistry } from "@jupyterlab/docregistry";
+import { INotebookTracker, NotebookPanel } from "@jupyterlab/notebook";
 import $ from "jquery";
+import { MarkdownCellModel } from "@jupyterlab/cells";
 
+const viewWeTitle = "Click here to open the worked example";
+const externalTitle =
+  "Click here after you've finished to move to the next assignment";
 const urlParams = new URLSearchParams(window.location.search);
 const user = getUrlUser();
 const hubLink =
@@ -24,9 +21,12 @@ const hubLink =
   "/" +
   urlParams.get("condition");
 
+let isExternalLinkGenerated = false;
+let isInternalLinkGenerated = false;
+
 // Hide UI elements to effect lockdown
-function lockdown(this: LabShell, notebookTracker: any, notebookPanel: any) {
-  //try to collapse left navbar again. It seems sometimes a delayed workspace load will pop it out again
+function lockdown(this: LabShell) {
+  //try to collapse left navbar again. It seems sometimes a delayed workspace load will pop it out agains
   this.collapseLeft();
 
   document.getElementById("jp-top-panel").style.display = "none";
@@ -36,17 +36,6 @@ function lockdown(this: LabShell, notebookTracker: any, notebookPanel: any) {
   let mainPanelFirstChild = document.getElementById("jp-main-content-panel")
     .children[0];
   (mainPanelFirstChild as HTMLElement).style.display = "none";
-
-  const timeout = urlParams.get("timeout");
-  if (timeout && Number.parseInt(timeout) > 0) {
-    setTimeout(() => {
-      document.body.innerHTML += `<div style="text-align:center;position:absolute;width:100%;height:100%;opacity:1;z-index:100;background:#000;">
-      <h1 style="color:orange;opacity:1 !important;">
-      <a target="_blank" rel="noopener noreferrer" href="${hubLink}">Click here to get your next assignment</a>
-      </h1>
-      </div>`;
-    }, Number.parseInt(timeout));
-  }
 }
 
 function getUrlUser() {
@@ -60,33 +49,108 @@ function getUrlUser() {
   return pathArray[userPathIndex];
 }
 
-class ButtonExtension
-  implements DocumentRegistry.IWidgetExtension<NotebookPanel, INotebookModel> {
-  /**
-   * Create a new extension object.
-   */
-  createNew(
-    panel: NotebookPanel,
-    context: DocumentRegistry.IContext<INotebookModel>
-  ): IDisposable {
-    let callback = () => {
-      // Return to DW client
-      window.location.href = hubLink;
-    };
-    let button = new ToolbarButton({
-      className: "backToClientBtn",
-      label: "I'm finished with my assignment",
-      onClick: callback,
-      tooltip: "Submit assignment and return to DataWhys hub.",
-    });
-
-    panel.toolbar.insertItem(0, "runAll", button);
-    return new DisposableDelegate(() => {
-      button.dispose();
-    });
+/**
+ *
+ * @param notebook
+ * Remove external link from worked example since it's
+ * only available for reference
+ */
+const clearExternalLink = (notebook: NotebookPanel) => {
+  const notebookModel = notebook.model;
+  const lastCell = notebookModel.cells.get(notebookModel.cells.length - 1);
+  if (lastCell.id.includes("external")) {
+    console.log("Clearing unused worked example external link.");
+    lastCell.value.clear();
   }
-}
+};
 
+const generateCells = (notebooks: INotebookTracker) => {
+  const notebook = notebooks.currentWidget;
+  const notebookModel = notebook.model;
+  const title = notebook.title.label;
+
+  let link = "";
+  let doesInternalLinkExist = false;
+  let doesExternalLinkExist = false;
+
+  try {
+    doesInternalLinkExist = notebookModel.cells
+      .get(0)
+      .toJSON()
+      .source[0].includes(viewWeTitle);
+  } catch (err) {
+    console.log(err);
+  }
+
+  try {
+    doesExternalLinkExist = notebookModel.cells
+      .get(notebookModel.cells.length - 1)
+      .toJSON()
+      .source[0].includes("://");
+  } catch (err) {
+    console.log(err);
+  }
+
+  console.log(notebookModel.cells.get(0).toJSON());
+
+  if (
+    title.includes("ps-near1") &&
+    !doesInternalLinkExist &&
+    !isInternalLinkGenerated
+  ) {
+    notebooks.forEach((notebook) => {
+      if (notebook.title.label.includes("we-")) {
+        clearExternalLink(notebook);
+      }
+    });
+    if (title.includes("-gl")) {
+      if (Number.parseInt(urlParams.get("bl")) === 1) {
+        link = `[${viewWeTitle}](we-bl-gl.ipynb)`;
+      } else {
+        link = `[${viewWeTitle}](we-co-gl.ipynb)`;
+      }
+    }
+    if (title.includes("-na")) {
+      if (Number.parseInt(urlParams.get("bl")) === 1) {
+        link = `[${viewWeTitle}](we-bl-na.ipynb)`;
+      } else {
+        link = `[${viewWeTitle}](we-co-na.ipynb)`;
+      }
+    }
+    const markdownModel = new MarkdownCellModel({
+      cell: {
+        cell_type: "markdown",
+        source: [link],
+        metadata: {
+          deletable: false,
+          editable: false,
+        },
+        id: "internal-we",
+      },
+    });
+    notebookModel.cells.insert(0, markdownModel);
+    isInternalLinkGenerated = true;
+  }
+
+  if (!doesExternalLinkExist && !isExternalLinkGenerated) {
+    link = hubLink;
+    const markdownModel = new MarkdownCellModel({
+      cell: {
+        cell_type: "markdown",
+        source: [`[${externalTitle}](${link})`],
+        metadata: {
+          deletable: false,
+          editable: false,
+        },
+        id: "external",
+      },
+    });
+    isExternalLinkGenerated = true;
+    notebookModel.cells.insert(notebookModel.cells.length - 1, markdownModel);
+  }
+};
+
+// };
 /**
  * Initialization data for the experimental-control extension.
  */
@@ -97,10 +161,16 @@ const extension: JupyterFrontEndPlugin<void> = {
   activate: (app: JupyterFrontEnd, notebooks: INotebookTracker) => {
     const urlParams = new URLSearchParams(window.location.search);
     const lockParam = urlParams.get("lock");
+
+    notebooks.currentChanged.connect(() => {
+      notebooks.currentWidget.context.ready.then(() => {
+        generateCells(notebooks);
+      });
+    });
+
     if (lockParam === "1") {
       console.log("JupyterLab extension experimental-control is activated!");
       // Remove 'x' icon from tab and Launcher tab here since we need app context
-      app.docRegistry.addWidgetExtension("Notebook", new ButtonExtension());
       app.restored.then(() => {
         //collapse the file explorer and anything else on the left navbar
         (app.shell as LabShell).collapseLeft();
