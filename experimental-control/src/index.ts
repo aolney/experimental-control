@@ -70,15 +70,26 @@ const generateCells = (notebooks: INotebookTracker) => {
   const title = notebook.title.label;
 
   let link = "";
-  let doesInternalLinkExist = notebookModel.cells
-    .get(0)
-    .toJSON()
-    .source[0].includes(viewWeTitle);
+  let doesInternalLinkExist = false;
+  let doesExternalLinkExist = false;
 
-  let doesExternalLinkExist = notebookModel.cells
-    .get(notebookModel.cells.length - 1)
-    .toJSON()
-    .source[0].includes("https://");
+  try {
+    doesInternalLinkExist = notebookModel.cells
+      .get(0)
+      .toJSON()
+      .source[0].includes(viewWeTitle);
+  } catch (err) {
+    console.log(err);
+  }
+
+  try {
+    doesExternalLinkExist = notebookModel.cells
+      .get(notebookModel.cells.length - 1)
+      .toJSON()
+      .source[0].includes("://");
+  } catch (err) {
+    console.log(err);
+  }
 
   console.log(notebookModel.cells.get(0).toJSON());
 
@@ -122,7 +133,7 @@ const generateCells = (notebooks: INotebookTracker) => {
   }
 
   if (!doesExternalLinkExist && !isExternalLinkGenerated) {
-    link = "https://" + hubLink;
+    link = hubLink;
     const markdownModel = new MarkdownCellModel({
       cell: {
         cell_type: "markdown",
