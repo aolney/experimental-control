@@ -117,18 +117,22 @@ const generateLinks = (notebooks: INotebookTracker) => {
     isInternalLinkGenerated = true;
   }
 
-  const $link = $("<a>", {
-    id: "external-link",
-    css: {
-      color: "#64b5f6",
-    },
-  });
-  $link.text("Click here after you've finished to move to the next assignment");
-  $link.on("click", function () {
-    window.location.replace(hubLink);
-  });
-  const $notebook = $(".jp-NotebookPanel-notebook");
-  $notebook.append($link);
+  if (!$("#external-link").length) {
+    const $link = $("<a>", {
+      id: "external-link",
+      css: {
+        color: "#64b5f6",
+      },
+    });
+    $link.text(
+      "Click here after you've finished to move to the next assignment"
+    );
+    $link.on("click", function () {
+      window.location.replace(hubLink);
+    });
+    const $notebook = $(".jp-NotebookPanel-notebook");
+    $notebook.append($link);
+  }
 };
 
 // };
