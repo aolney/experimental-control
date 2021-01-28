@@ -8,8 +8,6 @@ import $ from "jquery";
 import { MarkdownCellModel } from "@jupyterlab/cells";
 
 const viewWeTitle = "Click here to open the worked example";
-const externalTitle =
-  "Click here after you've finished to move to the next assignment";
 const urlParams = new URLSearchParams(window.location.search);
 const user = getUrlUser();
 const hubLink =
@@ -21,7 +19,6 @@ const hubLink =
   "/" +
   urlParams.get("condition");
 
-let isExternalLinkGenerated = false;
 let isInternalLinkGenerated = false;
 
 // Hide UI elements to effect lockdown
@@ -60,18 +57,16 @@ const clearExternalLink = (notebook: NotebookPanel) => {
   const lastCell = notebookModel.cells.get(notebookModel.cells.length - 1);
   if (lastCell.id.includes("external")) {
     console.log("Clearing unused worked example external link.");
-    lastCell.value.clear();
   }
 };
 
-const generateCells = (notebooks: INotebookTracker) => {
+const generateLinks = (notebooks: INotebookTracker) => {
   const notebook = notebooks.currentWidget;
   const notebookModel = notebook.model;
   const title = notebook.title.label;
 
   let link = "";
   let doesInternalLinkExist = false;
-  let doesExternalLinkExist = false;
 
   try {
     doesInternalLinkExist = notebookModel.cells
@@ -81,17 +76,6 @@ const generateCells = (notebooks: INotebookTracker) => {
   } catch (err) {
     console.log(err);
   }
-
-  try {
-    doesExternalLinkExist = notebookModel.cells
-      .get(notebookModel.cells.length - 1)
-      .toJSON()
-      .source[0].includes("://");
-  } catch (err) {
-    console.log(err);
-  }
-
-  console.log(notebookModel.cells.get(0).toJSON());
 
   if (
     title.includes("ps-near1") &&
@@ -128,25 +112,26 @@ const generateCells = (notebooks: INotebookTracker) => {
         id: "internal-we",
       },
     });
+
     notebookModel.cells.insert(0, markdownModel);
     isInternalLinkGenerated = true;
   }
 
-  if (!doesExternalLinkExist && !isExternalLinkGenerated) {
-    link = hubLink;
-    const markdownModel = new MarkdownCellModel({
-      cell: {
-        cell_type: "markdown",
-        source: [`[${externalTitle}](${link})`],
-        metadata: {
-          deletable: false,
-          editable: false,
-        },
-        id: "external",
+  if (!$("#external-link").length) {
+    const $link = $("<a>", {
+      id: "external-link",
+      css: {
+        color: "#64b5f6",
       },
     });
-    isExternalLinkGenerated = true;
-    notebookModel.cells.insert(notebookModel.cells.length - 1, markdownModel);
+    $link.text(
+      "Click here after you've finished to move to the next assignment"
+    );
+    $link.on("click", function () {
+      window.location.replace(hubLink);
+    });
+    const $notebook = $(".jp-NotebookPanel-notebook");
+    $notebook.append($link);
   }
 };
 
@@ -164,7 +149,7 @@ const extension: JupyterFrontEndPlugin<void> = {
 
     notebooks.currentChanged.connect(() => {
       notebooks.currentWidget.context.ready.then(() => {
-        generateCells(notebooks);
+        generateLinks(notebooks);
       });
     });
 
