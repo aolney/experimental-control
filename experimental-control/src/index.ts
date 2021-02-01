@@ -144,7 +144,7 @@ const extension: JupyterFrontEndPlugin<void> = {
   autoStart: true,
   requires: [INotebookTracker],
   activate: (app: JupyterFrontEnd, notebooks: INotebookTracker) => {
-    $(window).off("beforeunload");
+    window.onbeforeunload = null;
     const urlParams = new URLSearchParams(window.location.search);
     const lockParam = urlParams.get("lock");
 
