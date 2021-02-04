@@ -1,6 +1,6 @@
 {
   "name": "@aolney/experimental-control",
-  "version": "0.1.8",
+  "version": "0.1.9",
   "description": "DataWhys JupyterLab experimental control extension",
   "keywords": [
     "jupyter",
@@ -37,6 +37,7 @@
     "@jupyterlab/cells": "^1.0.0",
     "@jupyterlab/mainmenu": "^1.0.0",
     "@jupyterlab/notebook": "^1.0.0",
+    "@jupyterlab/docmanager": "^1.0.0",
     "@phosphor/signaling": "^1.0.0",
     "chokidar": "^3.5.1",
     "deep-object-diff": "^1.1.0",

@@ -6,6 +6,7 @@ import {
 import { INotebookTracker, NotebookPanel } from "@jupyterlab/notebook";
 import $ from "jquery";
 import { MarkdownCellModel } from "@jupyterlab/cells";
+import { IDocumentManager } from "@jupyterlab/docmanager";
 
 const viewWeTitle = "Click here to open the worked example";
 const urlParams = new URLSearchParams(window.location.search);
@@ -21,6 +22,8 @@ const hubLink =
 
 let isInternalLinkGenerated = false;
 
+
+
 // Hide UI elements to effect lockdown
 function lockdown(this: LabShell) {
   //try to collapse left navbar again. It seems sometimes a delayed workspace load will pop it out agains
@@ -33,6 +36,7 @@ function lockdown(this: LabShell) {
   let mainPanelFirstChild = document.getElementById("jp-main-content-panel")
     .children[0];
   (mainPanelFirstChild as HTMLElement).style.display = "none";
+
 }
 
 function getUrlUser() {
@@ -60,7 +64,7 @@ const clearExternalLink = (notebook: NotebookPanel) => {
   }
 };
 
-const generateLinks = (notebooks: INotebookTracker) => {
+const generateLinks = (notebooks: INotebookTracker, docManager: IDocumentManager) => {
   const notebook = notebooks.currentWidget;
   const notebookModel = notebook.model;
   const title = notebook.title.label;
@@ -128,7 +132,16 @@ const generateLinks = (notebooks: INotebookTracker) => {
       "Click here after you've finished to move to the next assignment"
     );
     $link.on("click", function () {
-      window.location.replace(hubLink);
+      // do save: if page navigation occurs in an unsaved state, "unsaved changes" popup will appear
+      let savePromises : Promise<void>[] = [];
+      notebooks.forEach((notebook) => {
+        let context = docManager.contextForWidget(notebook)
+        let savePromise = context.save()
+        savePromises.push(savePromise);
+      });
+      //reload window only when all save promises have completed
+      Promise.all(savePromises).then( () => window.location.replace(hubLink))
+      //window.location.replace(hubLink);
     });
     const $notebook = $(".jp-NotebookPanel-notebook");
     $notebook.append($link);
@@ -142,19 +155,21 @@ const generateLinks = (notebooks: INotebookTracker) => {
 const extension: JupyterFrontEndPlugin<void> = {
   id: "experimental-control",
   autoStart: true,
-  requires: [INotebookTracker],
-  activate: (app: JupyterFrontEnd, notebooks: INotebookTracker) => {
+  requires: [INotebookTracker,IDocumentManager],
+  activate: (app: JupyterFrontEnd, notebooks: INotebookTracker, docManager:IDocumentManager) => {
     const urlParams = new URLSearchParams(window.location.search);
     const lockParam = urlParams.get("lock");
 
+    //WES:  should this be in the lockParam == 1 section? 
     notebooks.currentChanged.connect(() => {
       notebooks.currentWidget.context.ready.then(() => {
-        generateLinks(notebooks);
+        generateLinks(notebooks,docManager);
       });
     });
 
     if (lockParam === "1") {
       console.log("JupyterLab extension experimental-control is activated!");
+
       // Remove 'x' icon from tab and Launcher tab here since we need app context
       app.restored.then(() => {
         //collapse the file explorer and anything else on the left navbar
