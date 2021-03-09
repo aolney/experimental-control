@@ -160,16 +160,17 @@ const extension: JupyterFrontEndPlugin<void> = {
     const urlParams = new URLSearchParams(window.location.search);
     const lockParam = urlParams.get("lock");
 
-    //WES:  should this be in the lockParam == 1 section? 
-    notebooks.currentChanged.connect(() => {
-      notebooks.currentWidget.context.ready.then(() => {
-        generateLinks(notebooks,docManager);
-      });
-    });
 
     if (lockParam === "1") {
       console.log("JupyterLab extension experimental-control is activated!");
 
+      // Generate notebook links - very specific to DataWhys E1 experiment! 
+      notebooks.currentChanged.connect(() => {
+        notebooks.currentWidget.context.ready.then(() => {
+          generateLinks(notebooks,docManager);
+        });
+      });
+      
       // Remove 'x' icon from tab and Launcher tab here since we need app context
       app.restored.then(() => {
         //collapse the file explorer and anything else on the left navbar
