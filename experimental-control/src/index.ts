@@ -22,8 +22,6 @@ const hubLink =
 
 let isInternalLinkGenerated = false;
 
-
-
 // Hide UI elements to effect lockdown
 function lockdown(this: LabShell) {
   //try to collapse left navbar again. It seems sometimes a delayed workspace load will pop it out agains
@@ -36,7 +34,6 @@ function lockdown(this: LabShell) {
   let mainPanelFirstChild = document.getElementById("jp-main-content-panel")
     .children[0];
   (mainPanelFirstChild as HTMLElement).style.display = "none";
-
 }
 
 function getUrlUser() {
@@ -64,7 +61,10 @@ const clearExternalLink = (notebook: NotebookPanel) => {
   }
 };
 
-const generateLinks = (notebooks: INotebookTracker, docManager: IDocumentManager) => {
+const generateLinks = (
+  notebooks: INotebookTracker,
+  docManager: IDocumentManager
+) => {
   const notebook = notebooks.currentWidget;
   const notebookModel = notebook.model;
   const title = notebook.title.label;
@@ -93,16 +93,16 @@ const generateLinks = (notebooks: INotebookTracker, docManager: IDocumentManager
     });
     if (title.includes("-gl")) {
       if (Number.parseInt(urlParams.get("bl")) === 1) {
-        link = `[${viewWeTitle}](we-bl-gl.ipynb)`;
+        link = `<span style="font-size:16pt;">[${viewWeTitle}](we-bl-gl.ipynb)</span>`;
       } else {
-        link = `[${viewWeTitle}](we-co-gl.ipynb)`;
+        link = `<span style="font-size:16pt;">[${viewWeTitle}](we-co-gl.ipynb)</span>`;
       }
     }
     if (title.includes("-na")) {
       if (Number.parseInt(urlParams.get("bl")) === 1) {
-        link = `[${viewWeTitle}](we-bl-na.ipynb)`;
+        link = `<span style="font-size:16pt;">[${viewWeTitle}](we-bl-na.ipynb)</span>`;
       } else {
-        link = `[${viewWeTitle}](we-co-na.ipynb)`;
+        link = `<span style="font-size:16pt;">[${viewWeTitle}](we-co-na.ipynb)</span>`;
       }
     }
     const markdownModel = new MarkdownCellModel({
@@ -126,6 +126,7 @@ const generateLinks = (notebooks: INotebookTracker, docManager: IDocumentManager
       id: "external-link",
       css: {
         color: "#64b5f6",
+        fontSize: "16pt",
       },
     });
     $link.text(
@@ -133,14 +134,14 @@ const generateLinks = (notebooks: INotebookTracker, docManager: IDocumentManager
     );
     $link.on("click", function () {
       // do save: if page navigation occurs in an unsaved state, "unsaved changes" popup will appear
-      let savePromises : Promise<void>[] = [];
+      let savePromises: Promise<void>[] = [];
       notebooks.forEach((notebook) => {
-        let context = docManager.contextForWidget(notebook)
-        let savePromise = context.save()
+        let context = docManager.contextForWidget(notebook);
+        let savePromise = context.save();
         savePromises.push(savePromise);
       });
       //reload window only when all save promises have completed
-      Promise.all(savePromises).then( () => window.location.replace(hubLink))
+      Promise.all(savePromises).then(() => window.location.replace(hubLink));
       //window.location.replace(hubLink);
     });
     const $notebook = $(".jp-NotebookPanel-notebook");
@@ -155,22 +156,25 @@ const generateLinks = (notebooks: INotebookTracker, docManager: IDocumentManager
 const extension: JupyterFrontEndPlugin<void> = {
   id: "experimental-control",
   autoStart: true,
-  requires: [INotebookTracker,IDocumentManager],
-  activate: (app: JupyterFrontEnd, notebooks: INotebookTracker, docManager:IDocumentManager) => {
+  requires: [INotebookTracker, IDocumentManager],
+  activate: (
+    app: JupyterFrontEnd,
+    notebooks: INotebookTracker,
+    docManager: IDocumentManager
+  ) => {
     const urlParams = new URLSearchParams(window.location.search);
     const lockParam = urlParams.get("lock");
-
 
     if (lockParam === "1") {
       console.log("JupyterLab extension experimental-control is activated!");
 
-      // Generate notebook links - very specific to DataWhys E1 experiment! 
+      // Generate notebook links - very specific to DataWhys E1 experiment!
       notebooks.currentChanged.connect(() => {
         notebooks.currentWidget.context.ready.then(() => {
-          generateLinks(notebooks,docManager);
+          generateLinks(notebooks, docManager);
         });
       });
-      
+
       // Remove 'x' icon from tab and Launcher tab here since we need app context
       app.restored.then(() => {
         //collapse the file explorer and anything else on the left navbar
