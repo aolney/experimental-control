@@ -8,6 +8,10 @@ import $ from "jquery";
 import { MarkdownCellModel } from "@jupyterlab/cells";
 import { IDocumentManager } from "@jupyterlab/docmanager";
 
+//TODO notes
+//- propose ripping out anything stateful. Pass all that in via query params
+//- 
+
 const viewWeTitle = "Click here to open the worked example";
 const urlParams = new URLSearchParams(window.location.search);
 const user = getUrlUser();
@@ -19,6 +23,7 @@ const hubLink =
   urlParams.get("index") +
   "/" +
   urlParams.get("condition");
+const isQualtrics = urlParams.get("qualtrics")
 
 let isInternalLinkGenerated = false;
 
@@ -140,9 +145,34 @@ const generateLinks = (
         let savePromise = context.save();
         savePromises.push(savePromise);
       });
-      //reload window only when all save promises have completed
-      Promise.all(savePromises).then(() => window.location.replace(hubLink));
-      //window.location.replace(hubLink);
+      //wait for all save promises
+      //qualtrics integration: do not return to hub
+      if( isQualtrics === "1"){
+        Promise.all(savePromises).then(() => {
+            //hide the interface
+            $(".jp-LabShell").hide(); //hidden = true; /
+
+            //muck with the history/query params to prevent unhiding via reload
+            urlParams.set("rb", "1");
+            var newRelativePathQuery = window.location.pathname + '?' + urlParams.toString();
+            history.pushState(null, '', newRelativePathQuery);
+
+            //reveal instructions in popup since we have no HTML canvas to display on now
+            //Playing around with the idea of keywords; would be easy to cut out
+            let keywords = ["rain", "insure" , "silk" ,"contest", "polish"];
+            let keyword = "";
+            if ( title.includes("we-") ) { keyword = keywords[0]; }
+            else if ( title.includes("ps-near1") ) { keyword = keywords[1]; }
+            else if ( title.includes("ps-near2") ) { keyword = keywords[2]; }
+            else if ( title.includes("ps-far-") ) { keyword = keywords[3]; }
+            else if ( title.includes("ps-farplus") ) { keyword = keywords[4]; }
+            window.alert("The keyword is:\n\n" + keyword + "\n\nPlease enter the keyword in the experiment tab to continue.\n\nYou may close this tab now.");
+            //no keyword version: window.alert("Please return to the experiment tab to continue.\n\nYou may close this tab now.");
+        });
+      } else {
+        //Wes original functionality
+        Promise.all(savePromises).then(() => window.location.replace(hubLink)); 
+      }
     });
     const $notebook = $(".jp-NotebookPanel-notebook");
     $notebook.append($link);
@@ -164,6 +194,7 @@ const extension: JupyterFrontEndPlugin<void> = {
   ) => {
     const urlParams = new URLSearchParams(window.location.search);
     const lockParam = urlParams.get("lock");
+    const reloadBlockParam = urlParams.get("rb");
 
     if (lockParam === "1") {
       console.log("JupyterLab extension experimental-control is activated!");
@@ -204,6 +235,11 @@ const extension: JupyterFrontEndPlugin<void> = {
               $currentTabParent.hide();
             }
           });
+
+          if( reloadBlockParam === "1" ){
+            $(".jp-LabShell").hide();
+            window.alert("You cannot reload this tab.\n\nPlease return to the experiment tab to continue.\n\nYou may close this tab now.");
+          }
         }, 1000);
       });
 
