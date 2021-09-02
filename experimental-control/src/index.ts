@@ -163,7 +163,7 @@ const generateLinks = (
             //muck with the history/query params to prevent unhiding via reload
             urlParams.set("rb", "1");
             var newRelativePathQuery = window.location.pathname + '?' + urlParams.toString();
-            history.pushState(null, '', newRelativePathQuery);
+            history.replaceState(null, '', newRelativePathQuery);
 
             //reveal instructions in popup since we have no HTML canvas to display on now
             //Playing around with the idea of keywords; would be easy to cut out
@@ -174,7 +174,7 @@ const generateLinks = (
             else if ( title.includes("ps-near2") ) { keyword = keywords[2]; }
             else if ( title.includes("ps-far-") ) { keyword = keywords[3]; }
             else if ( title.includes("ps-farplus") ) { keyword = keywords[4]; }
-            window.alert("\n\nThe keyword is:\n\n" + keyword + "\n\nPlease enter the keyword in the experiment tab to continue.\n\nClose this window *after* you enter the keyword in the experiment tab.");
+            window.alert("The keyword is:\n\n" + keyword + "\n\nPlease enter the keyword in the experiment tab to continue.\n\nClose this window *after* you enter the keyword in the experiment tab.");
             //no keyword version: window.alert("Please return to the experiment tab to continue.\n\nYou may close this tab now.");
         });
       } else {
