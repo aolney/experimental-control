@@ -23,12 +23,19 @@ const hubLink =
   urlParams.get("index") +
   "/" +
   urlParams.get("condition");
-const isQualtrics = urlParams.get("qualtrics")
+const qualtricsParam = urlParams.get("qualtrics")
+const reloadBlockParam = urlParams.get("rb");
 
 let isInternalLinkGenerated = false;
 
 // Hide UI elements to effect lockdown
 function lockdown(this: LabShell) {
+
+  if( reloadBlockParam === "1" ){
+    document.getElementById("main").style.display = "none"
+    window.alert("You cannot reload this tab.\n\nPlease return to the experiment tab to continue.\n\nYou may close this tab now.");
+  }
+
   //try to collapse left navbar again. It seems sometimes a delayed workspace load will pop it out agains
   this.collapseLeft();
 
@@ -147,10 +154,11 @@ const generateLinks = (
       });
       //wait for all save promises
       //qualtrics integration: do not return to hub
-      if( isQualtrics === "1"){
+      if( qualtricsParam === "1"){
         Promise.all(savePromises).then(() => {
             //hide the interface
-            $(".jp-LabShell").hide(); //hidden = true; /
+            //$(".jp-LabShell").hide(); //hidden = true; /
+            document.getElementById("main").style.display = "none"
 
             //muck with the history/query params to prevent unhiding via reload
             urlParams.set("rb", "1");
@@ -166,7 +174,7 @@ const generateLinks = (
             else if ( title.includes("ps-near2") ) { keyword = keywords[2]; }
             else if ( title.includes("ps-far-") ) { keyword = keywords[3]; }
             else if ( title.includes("ps-farplus") ) { keyword = keywords[4]; }
-            window.alert("The keyword is:\n\n" + keyword + "\n\nPlease enter the keyword in the experiment tab to continue.\n\nYou may close this tab now.");
+            window.alert("\n\nThe keyword is:\n\n" + keyword + "\n\nPlease enter the keyword in the experiment tab to continue.\n\nClose this window *after* you enter the keyword in the experiment tab.");
             //no keyword version: window.alert("Please return to the experiment tab to continue.\n\nYou may close this tab now.");
         });
       } else {
@@ -194,7 +202,6 @@ const extension: JupyterFrontEndPlugin<void> = {
   ) => {
     const urlParams = new URLSearchParams(window.location.search);
     const lockParam = urlParams.get("lock");
-    const reloadBlockParam = urlParams.get("rb");
 
     if (lockParam === "1") {
       console.log("JupyterLab extension experimental-control is activated!");
@@ -235,11 +242,6 @@ const extension: JupyterFrontEndPlugin<void> = {
               $currentTabParent.hide();
             }
           });
-
-          if( reloadBlockParam === "1" ){
-            $(".jp-LabShell").hide();
-            window.alert("You cannot reload this tab.\n\nPlease return to the experiment tab to continue.\n\nYou may close this tab now.");
-          }
         }, 1000);
       });
 
