@@ -12,7 +12,7 @@ import { IDocumentManager } from "@jupyterlab/docmanager";
 //- propose ripping out anything stateful. Pass all that in via query params
 //- 
 
-const viewWeTitle = "Click here to open the worked example";
+const viewWeTitle = "Click here to see examples from your first notebook";
 const urlParams = new URLSearchParams(window.location.search);
 const user = getUrlUser();
 const hubLink =
