@@ -242,6 +242,31 @@ const extension: JupyterFrontEndPlugin<void> = {
               $currentTabParent.hide();
             }
           });
+
+          //Jan 2022: force every cell of WE and PS1 be attempted in order to allow moving off the notebook
+          if( workedExampleEligible ) {
+            //hide the exit link by default for WE and PS1
+            $("#external-link").hide();
+
+            // check every code cell for text, which indicates and attempt was made on that cell
+            let allCodeCellsAttempted = true;
+            notebooks.forEach((notebook) => {
+              const it = notebook.model.cells.iter()
+              let result = it.next();
+              while (result !== undefined) {
+                // if we find a single blank code cell, change our flag to false
+                if( result.type === 'code' && result.value.text.trim() === "") {
+                  allCodeCellsAttempted = false
+                }
+                result = it.next();
+              }
+            });
+            // unhide exit link if all attempted
+            if( allCodeCellsAttempted ) {
+              $("#external-link").show();
+            }
+          }
+          //
         }, 1000);
       });
 

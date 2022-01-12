@@ -1,6 +1,6 @@
 {
   "name": "@aolney/experimental-control",
-  "version": "0.1.15",
+  "version": "0.1.16",
   "description": "DataWhys JupyterLab experimental control extension",
   "keywords": [
     "jupyter",
