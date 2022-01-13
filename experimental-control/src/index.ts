@@ -244,24 +244,35 @@ const extension: JupyterFrontEndPlugin<void> = {
           });
 
           //Jan 2022: force every cell of WE and PS1 be attempted in order to allow moving off the notebook
+          //NOTE: previous version checked that all code cells were attempted, which was flexible but has the 
+          //edge case of them creating a dummy code cell that logically does not need to be filled for completeness
           if( workedExampleEligible ) {
             //hide the exit link by default for WE and PS1
             $("#external-link").hide();
 
-            // check every code cell for text, which indicates and attempt was made on that cell
-            let allCodeCellsAttempted = true;
-            notebooks.forEach((notebook) => {
-              const it = notebook.model.cells.iter()
-              let result = it.next();
-              while (result !== undefined) {
-                // if we find a single blank code cell, change our flag to false
-                if( result.type === 'code' && result.value.text.trim() === "") {
-                  allCodeCellsAttempted = false
-                }
-                result = it.next();
+            // Count code cells attempted (non-blank) in the active notebook
+            let codeCellAttemptedCount = 0;
+
+            const it = notebooks.currentWidget.model.cells.iter()
+            let result = it.next();
+            while (result !== undefined) {
+              // Count a non-blank code cell
+              if( result.type === 'code' && result.value.text.trim() !== "") {
+                codeCellAttemptedCount++;
               }
-            });
-            // unhide exit link if all attempted
+              result = it.next();
+            }
+            
+            
+            // For checking our count, we need to be specific about what notebook we're looking at because they have different #s of code cells
+            let allCodeCellsAttempted = false;
+            if( notebooks.currentWidget.title.label.includes("we-") && codeCellAttemptedCount >= 10) {
+              allCodeCellsAttempted = true;
+            } else if (notebooks.currentWidget.title.label.includes("near1") && codeCellAttemptedCount >= 5) {
+              allCodeCellsAttempted = true;
+            }
+            
+            
             if( allCodeCellsAttempted ) {
               $("#external-link").show();
             }
