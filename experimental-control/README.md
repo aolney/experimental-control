@@ -16,6 +16,8 @@ The following behaviors are implemented:
 - Launcher and terminal tabs hidden
 - Notebook tab close button disabled
 - Bottom status bar hidden
+- Auto renders markdown in case users accidentally double click
+- For WE/PS1, checks the expected number of code cells have been executed before giving password
 
 
 ## Requirements

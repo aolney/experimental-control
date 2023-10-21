@@ -5,7 +5,7 @@ import {
 } from "@jupyterlab/application";
 import { INotebookTracker, NotebookPanel } from "@jupyterlab/notebook";
 import $ from "jquery";
-import { MarkdownCellModel } from "@jupyterlab/cells";
+import { CodeCellModel, MarkdownCell, MarkdownCellModel } from "@jupyterlab/cells";
 import { IDocumentManager } from "@jupyterlab/docmanager";
 
 //TODO notes
@@ -243,6 +243,18 @@ const extension: JupyterFrontEndPlugin<void> = {
             }
           });
 
+          //Oct 2023: auto render any markdown cells
+          // The following builtin method unfortunately steals focus
+          // NotebookActions.renderAllMarkdown(notebooks.currentWidget.content)
+          notebooks.currentWidget.content.widgets.forEach((child, index) => {
+            if (child.model.type === 'markdown') {
+              (child as MarkdownCell).rendered = true;
+              child.inputHidden = false;
+              // Signal does not appear needed; the comment below is for reference
+              // executed.emit({ notebook, cell, success: true });
+            }
+          });
+
           //Jan 2022: force every cell of WE and PS1 be attempted in order to allow moving off the notebook
           //NOTE: previous version checked that all code cells were attempted, which was flexible but has the 
           //edge case of them creating a dummy code cell that logically does not need to be filled for completeness
@@ -258,7 +270,13 @@ const extension: JupyterFrontEndPlugin<void> = {
             while (result !== undefined) {
               // Count a non-blank code cell
               if( result.type === 'code' && result.value.text.trim() !== "") {
-                codeCellAttemptedCount++;
+                //Oct 2023: check if cell has been executed in addition to being nonempty
+                let codeCell = result as CodeCellModel;
+                if( codeCell.executionCount > 0 )
+                {
+                  codeCellAttemptedCount++;
+                }
+                
               }
               result = it.next();
             }
@@ -266,7 +284,7 @@ const extension: JupyterFrontEndPlugin<void> = {
             
             // For checking our count, we need to be specific about what notebook we're looking at because they have different #s of code cells
             let allCodeCellsAttempted = false;
-            if( notebooks.currentWidget.title.label.includes("we-") && codeCellAttemptedCount >= 10) {
+            if( notebooks.currentWidget.title.label.includes("we-") && codeCellAttemptedCount >= 9) { //Was 10 before dataframe display removed 11/22
               allCodeCellsAttempted = true;
             } else if (notebooks.currentWidget.title.label.includes("near1") && codeCellAttemptedCount >= 5) {
               allCodeCellsAttempted = true;
